@@ -11,19 +11,43 @@ import org.bukkit.plugin.messaging.PluginMessageListener;
 
 import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
+import java.sql.*;
 
 public final class MuteLabyVoice extends JavaPlugin implements PluginMessageListener {
     public static String LABY_CHANNEL_NAME = "labymod3:main";
+    public static Connection MySQLConnect;
+    private String TableName = "muted_laby_players";
 
     @Override
     public void onEnable() {
         getServer().getMessenger().registerIncomingPluginChannel(this, LABY_CHANNEL_NAME, this);
         this.getCommand("labymute").setExecutor(new MuteUser());
         this.getCommand("labysetvolume").setExecutor(new SetVolume());
+        try {
+            MySQLConnect = DriverManager.getConnection("jdbc:mysql://127.0.0.1:3306/namemc?characterEncoding=utf8", "root", "test");
+            Statement stmt = MySQLConnect.createStatement();
+            stmt.executeUpdate(
+                    "CREATE TABLE IF NOT EXISTS " + TableName + " (\n" +
+                    "    uuid  CHAR(36)         NOT NULL,\n" +
+                    "    muted_for BIGINT DEFAULT 0 NOT NULL,\n" +
+                    "    muted BOOLEAN DEFAULT false NOT NULL,\n" +
+                    "    reason TEXT,\n" +
+                    "    PRIMARY KEY (uuid)\n" +
+                    ");"
+            );
+            stmt.close();
+        } catch (SQLException e){
+            e.printStackTrace();
+        }
     }
 
     @Override
     public void onDisable() {
+        try {
+            MySQLConnect.close();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override
@@ -32,8 +56,6 @@ public final class MuteLabyVoice extends JavaPlugin implements PluginMessageList
             return;
         }
 
-        DataInputStream in = new DataInputStream(new ByteArrayInputStream(message));
-
         ByteBuf buf = Unpooled.wrappedBuffer(message);
         String key = LabyModProtocol.readString(buf, Short.MAX_VALUE);
         String json = LabyModProtocol.readString(buf, Short.MAX_VALUE);
@@ -41,10 +63,20 @@ public final class MuteLabyVoice extends JavaPlugin implements PluginMessageList
         if(key.equals("INFO")) {
             System.out.println(json);
         }
-        // LabyMod user voicechat settings
+        // LabyMod user voicechat
         if (key.equals("voicechat")) {
-            // Check database to see if a user is muted, and if the time is correct
-            // MuteUser.sendMutedPlayerTo(player, player.getUniqueId(), true | false);
+            boolean muted = false;
+            try {
+                Statement stmt = MySQLConnect.createStatement();
+                ResultSet rs = stmt.executeQuery("SELECT muted from " + TableName + " WHERE uuid = '" + player.getUniqueId().toString() + "'");
+                if (rs.next()) {
+                    muted = rs.getBoolean("muted");
+                }
+                stmt.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+            MuteUser.sendMutedPlayerTo(player, player.getUniqueId(), muted);
         }
     }
 }

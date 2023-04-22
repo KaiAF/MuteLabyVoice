@@ -89,5 +89,10 @@
             <artifactId>craftbukkit-1.8.8</artifactId>
             <version>R</version>
         </dependency>
+        <dependency>
+            <groupId>com.mysql</groupId>
+            <artifactId>mysql-connector-j</artifactId>
+            <version>8.0.33</version>
+        </dependency>
     </dependencies>
 </project>
