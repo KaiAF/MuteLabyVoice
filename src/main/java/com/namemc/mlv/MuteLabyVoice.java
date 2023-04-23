@@ -1,7 +1,6 @@
 package com.namemc.mlv;
 
 import com.namemc.mlv.commands.MuteUser;
-import com.namemc.mlv.commands.SetVolume;
 import com.namemc.mlv.utils.LabyModProtocol;
 import com.namemc.mlv.utils.TimeManager;
 import io.netty.buffer.ByteBuf;
@@ -21,7 +20,6 @@ public final class MuteLabyVoice extends JavaPlugin implements PluginMessageList
     public void onEnable() {
         getServer().getMessenger().registerIncomingPluginChannel(this, LABY_CHANNEL_NAME, this);
         this.getCommand("labymute").setExecutor(new MuteUser());
-        this.getCommand("labysetvolume").setExecutor(new SetVolume());
         try {
             MySQLConnect = DriverManager.getConnection("jdbc:mysql://127.0.0.1:3306/namemc?characterEncoding=utf8", "root", "test");
             Statement stmt = MySQLConnect.createStatement();
