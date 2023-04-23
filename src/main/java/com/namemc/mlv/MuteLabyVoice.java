@@ -15,7 +15,7 @@ import java.sql.*;
 public final class MuteLabyVoice extends JavaPlugin implements PluginMessageListener {
     public static String LABY_CHANNEL_NAME = "labymod3:main";
     public static Connection MySQLConnect;
-    private String TableName = "muted_laby_players";
+    public static String TableName = "muted_laby_players";
 
     @Override
     public void onEnable() {

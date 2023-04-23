@@ -1,6 +1,7 @@
 package com.namemc.mlv.commands;
 
 import com.google.gson.JsonObject;
+import com.namemc.mlv.MuteLabyVoice;
 import com.namemc.mlv.utils.LabyModProtocol;
 import com.namemc.mlv.utils.TimeManager;
 import org.bukkit.Bukkit;
@@ -39,7 +40,8 @@ public class MuteUser implements CommandExecutor {
         try {
             Statement stmt = MySQLConnect.createStatement();
             String query = String.format(
-               "INSERT INTO `namemc`.`muted_laby_players` (`uuid`, `muted_for`, `reason`, `muted`, `moderator`) VALUES ('%s', '%s', '%s', '%s', '%s');",
+               "INSERT INTO `%s` (`uuid`, `muted_for`, `reason`, `muted`, `moderator`) VALUES ('%s', '%s', '%s', '%s', '%s');",
+               MuteLabyVoice.TableName,
                player.getUniqueId().toString(),
                MuteLengthMS,
                mute_reason,
