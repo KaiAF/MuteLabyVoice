@@ -69,7 +69,7 @@ public final class MuteLabyVoice extends JavaPlugin implements PluginMessageList
                 Statement stmt = MySQLConnect.createStatement();
                 ResultSet rs = stmt.executeQuery("SELECT * from " + TableName + " WHERE uuid = '" + player.getUniqueId() + "'");
                 if (rs.next()) {
-                    Long muteLength = rs.getLong("muted_for");
+                    long muteLength = rs.getLong("muted_for");
                     muted = rs.getBoolean("muted");
                     if (muted) {
                         muted = muteLength >= TimeManager.getTime();
