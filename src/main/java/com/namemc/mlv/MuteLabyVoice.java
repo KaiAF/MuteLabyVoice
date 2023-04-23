@@ -78,6 +78,7 @@ public final class MuteLabyVoice extends JavaPlugin implements PluginMessageList
                     if (!muted) {
                         stmt.executeUpdate(String.format("UPDATE `%s` SET `muted` = '0' WHERE (`uuid` = '%s');", TableName, rs.getString("uuid")));
                     }
+                    // Not sure if it's my code or not, but sometimes when a player leaves and joins back quickly, laby will not mute them.
                     MuteUser.sendMutedPlayerTo(player, player.getUniqueId(), muted);
                 }
                 stmt.close();
