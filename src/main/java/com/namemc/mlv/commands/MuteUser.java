@@ -20,12 +20,16 @@ import static com.namemc.mlv.MuteLabyVoice.MySQLConnect;
 public class MuteUser implements CommandExecutor {
     @Override
     public boolean onCommand(CommandSender sender, Command cmd, String commandName, String[] args) {
-        if (args.length == 0) return true;
+        if (args.length != 3) {
+            sender.sendMessage(ChatColor.RED + "Invalid arguments! Required: <player name> <mute length> <reason>");
+            return true;
+        }
+        Player moderator = (Player) sender;
         Player player = Bukkit.getPlayer(args[0]);
-        String mute_reason = args[1];
-        String mute_length = args[2];
+        String mute_length = args[1];
+        String mute_reason = args[2];
         if (player == null) {
-            sender.sendMessage("Could not find player");
+            sender.sendMessage(ChatColor.RED + "Could not find player");
             return true;
         }
         if (mute_length == null) {
@@ -35,11 +39,12 @@ public class MuteUser implements CommandExecutor {
         try {
             Statement stmt = MySQLConnect.createStatement();
             String query = String.format(
-               "INSERT INTO `namemc`.`muted_laby_players` (`uuid`, `muted_for`, `reason`, `muted`) VALUES ('%s', '%s', '%s', '%s');",
+               "INSERT INTO `namemc`.`muted_laby_players` (`uuid`, `muted_for`, `reason`, `muted`, `moderator`) VALUES ('%s', '%s', '%s', '%s', '%s');",
                player.getUniqueId().toString(),
                MuteLengthMS,
                mute_reason,
-               "1"
+               "1",
+               moderator.getUniqueId()
             );
             stmt.executeUpdate(query);
             stmt.close();

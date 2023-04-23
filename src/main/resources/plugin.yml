@@ -6,9 +6,5 @@ authors: [IrisJS]
 commands:
   labymute:
     description: A command that mutes users on LabyMod's VoiceChat
-    usage: /<command>
+    usage: /<command> <length> <reason>
     permission: mlv.labymute
-  labysetvolume:
-    description: A command that sets the volume for the user's LabyMod VoiceChat
-    usage: /<command>
-    permission: mlv.labysetvolume
