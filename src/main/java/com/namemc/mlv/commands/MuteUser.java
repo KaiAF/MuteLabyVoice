@@ -2,6 +2,7 @@ package com.namemc.mlv.commands;
 
 import com.google.gson.JsonObject;
 import com.namemc.mlv.utils.LabyModProtocol;
+import com.namemc.mlv.utils.TimeManager;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
@@ -22,29 +23,32 @@ public class MuteUser implements CommandExecutor {
         if (args.length == 0) return true;
         Player player = Bukkit.getPlayer(args[0]);
         String mute_reason = args[1];
+        String mute_length = args[2];
         if (player == null) {
             sender.sendMessage("Could not find player");
             return true;
         }
+        if (mute_length == null) {
+            mute_length = "5m";
+        }
+        Long MuteLengthMS = TimeManager.getTime() + TimeManager.toMS(mute_length);
         try {
             Statement stmt = MySQLConnect.createStatement();
-            stmt.executeUpdate(String.format("INSERT INTO `namemc`.`muted_laby_players`\n" +
-                    "(`uuid`,\n" +
-                    "`muted_for`,\n" +
-                    "`reason`,\n" +
-                    "`muted`)\n" +
-                    "VALUES\n" +
-                    "('%s',\n" +
-                    "%s,\n" +
-                    "'%s',\n" +
-                    "%s);", player.getUniqueId().toString(), "32", mute_reason, "true"));
+            String query = String.format(
+               "INSERT INTO `namemc`.`muted_laby_players` (`uuid`, `muted_for`, `reason`, `muted`) VALUES ('%s', '%s', '%s', '%s');",
+               player.getUniqueId().toString(),
+               MuteLengthMS,
+               mute_reason,
+               "1"
+            );
+            stmt.executeUpdate(query);
             stmt.close();
         } catch (SQLException e) {
             sender.sendMessage(ChatColor.RED + "There was an error while updating the database.");
             e.printStackTrace();
         }
         sendMutedPlayerTo(player, player.getUniqueId(), true);
-        sender.sendMessage(String.format("Muted %s", player.getName()));
+        sender.sendMessage(String.format("Muted %s for %s", player.getName(), mute_length));
         return true;
     }
 

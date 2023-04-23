@@ -3,14 +3,13 @@ package com.namemc.mlv;
 import com.namemc.mlv.commands.MuteUser;
 import com.namemc.mlv.commands.SetVolume;
 import com.namemc.mlv.utils.LabyModProtocol;
+import com.namemc.mlv.utils.TimeManager;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.plugin.messaging.PluginMessageListener;
 
-import java.io.ByteArrayInputStream;
-import java.io.DataInputStream;
 import java.sql.*;
 
 public final class MuteLabyVoice extends JavaPlugin implements PluginMessageListener {
@@ -68,9 +67,13 @@ public final class MuteLabyVoice extends JavaPlugin implements PluginMessageList
             boolean muted = false;
             try {
                 Statement stmt = MySQLConnect.createStatement();
-                ResultSet rs = stmt.executeQuery("SELECT muted from " + TableName + " WHERE uuid = '" + player.getUniqueId().toString() + "'");
+                ResultSet rs = stmt.executeQuery("SELECT * from " + TableName + " WHERE uuid = '" + player.getUniqueId() + "'");
                 if (rs.next()) {
+                    Long muteLength = rs.getLong("muted_for");
                     muted = rs.getBoolean("muted");
+                    if (muted) {
+                        muted = muteLength >= TimeManager.getTime();
+                    }
                 }
                 stmt.close();
             } catch (SQLException e) {
